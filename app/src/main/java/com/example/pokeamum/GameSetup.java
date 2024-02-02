@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -26,12 +28,11 @@ public class GameSetup extends Thread {
     private final List<Player> players = new ArrayList<>();
     private List<DeckCard> fullDeck;
 
-    public GameSetup(Activity activity) {
+    public GameSetup(@NonNull Activity activity) {
         act = activity;
         requestQueue = Volley.newRequestQueue(activity.getApplicationContext());
         getFullDeck();
     }
-
     private void getFullDeck() {
         String url = "https://api.tcgdex.net/v2/en/cards";
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
@@ -41,16 +42,15 @@ public class GameSetup extends Thread {
         }, error -> Log.d("Volley", error.toString()));
         requestQueue.add(request);
     }
-
     @Override
     public void run() {
         super.run();
         initPlayers();
     }
-
     private void initPlayers() {
         for (int i = 0; i < numPlayers; i++) {
             Player p = new Player();
+            p.name = "Player " + (i+1);
             addDeckToPlayer(p);
             players.add(p);
         }
@@ -73,7 +73,6 @@ public class GameSetup extends Thread {
         }
         StartGame();
     }
-
     private void addDeckToPlayer(Player player) {
         Random rnd = new Random();
         for (int i = 0; i < numCards; i++) {
@@ -82,7 +81,6 @@ public class GameSetup extends Thread {
             addCardToPlayer(card.id, player);
         }
     }
-
     private void addCardToPlayer(String id, Player player) {
         String url = "https://api.tcgdex.net/v2/en/cards/" + id;
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
@@ -91,7 +89,6 @@ public class GameSetup extends Thread {
         }, error -> Log.d("Volley", error.toString()));
         requestQueue.add(request);
     }
-
     private void StartGame() {
         act.runOnUiThread(() -> Toast.makeText(act, "Get Ready!", Toast.LENGTH_LONG).show());
 
